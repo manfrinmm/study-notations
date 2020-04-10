@@ -35,7 +35,7 @@
 
 # Aplicação
 
-## Para que ser a `interface`
+## Para que serve a `interface`
 
 - Define o tipo do objeto recebido por parâmetro.
 
@@ -49,6 +49,8 @@
 
 comandos
 
-`tsc path`: `path` é o caminho para onde estar o arquivo de inicialização. Esse comando faz a transpilação do TS para JS
+`tsc path` -> `path` é o caminho para onde estar o arquivo de inicialização. Esse comando faz a transpilação do TS para JS
 
-`tsc` : Vai automaticamente encontrar um arquivo index.ts e transpilar para JS. PRECISA TER O ARQUIVO `tsconfig.json`
+`tsc --init` -> Cria o arquivo de configuração base o TS.
+
+`tsc` -> Vai automaticamente encontrar um arquivo index.ts e transpilar para JS. PRECISA TER O ARQUIVO `tsconfig.json` configurado anteriormente.
