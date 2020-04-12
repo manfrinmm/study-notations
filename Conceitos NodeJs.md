@@ -64,18 +64,18 @@ HTTP codes:
 
 HTTP methods
 
-`GET` Buscar informações do back-end.
-`POST` Criar uma informações do back-end.
-`PUT/PATCH` Alterar informações do back-end.
-`PATCH` Alterar uma única informação no back-end.
-`DELETE` Deletar uma informação do back-end.
+- `GET` Buscar informações do back-end.
+- `POST` Criar uma informações do back-end.
+- `PUT/PATCH` Alterar informações do back-end.
+- `PATCH` Alterar uma única informação no back-end.
+- `DELETE` Deletar uma informação do back-end.
 
 Tipos de parâmetros
 
-`Query Params (?NOME=VALOR)` Principalmente -> Filtros e paginação.
-`Route Params(:NOME)` Identificar recursos (Atualizar/Deletar).
-`Request body` Corpo da requisição, geralmente em JSON. Mas para receber o
-formato JSON precisa fazer o express "aceitar", basta colocar no código antes das rotas:
+- `Query Params (?NOME=VALOR)` Principalmente -> Filtros e paginação.
+- `Route Params(:NOME)` Identificar recursos (Visualizar/Atualizar/Deletar).
+- `Request body` Corpo da requisição, geralmente em JSON. Mas para receber o
+  formato JSON precisa fazer o express "aceitar", basta colocar no código antes das rotas:
 
 ```js
 app.use(express.json());

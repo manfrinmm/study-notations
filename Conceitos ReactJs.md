@@ -27,7 +27,7 @@ O browser não entende todo código JSX.
 - @babel/preset-env
 - @babel/preset-react
 - @babel/cli
-- @babel/plugin-transform-runtime -> Permite a utilização de funções ASYNC AWAIT, pode ser instalado como dev dependencies
+- @babel/plugin-transform-runtime -> Permite a utilização de funções ASYNC AWAIT, pode ser instalado como dependência de desenvolvimento.
 - babel-loader
 - style-loader
 - css-loader

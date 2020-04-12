@@ -18,9 +18,7 @@
   - Possuem por padrão display flex.
   - Não possuem herança de estilo.
 
-## Configurar ambiente
-
-Acessar esse [link](https://react-native.rocketseat.dev/android/windows).
+## [ Configurar ambiente](https://react-native.rocketseat.dev/android/windows).
 
 ## Configuração da rede
 
