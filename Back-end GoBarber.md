@@ -77,9 +77,9 @@ Modificando e adicionando dados no arquivo `.eslintrc.json`:
 
 ```json
   "extends":[
-    "plugin:@typescript-eslint/recommend",
+    "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommend",
+    "plugin:prettier/recommended",
   ],
   "plugins":[
     "@typescript-eslint",
