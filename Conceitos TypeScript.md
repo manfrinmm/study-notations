@@ -43,6 +43,8 @@
 
 - typescript -> pode ser instalada como dev dependencies
 
+- Caso alguma lib não venha com as declarações de tipos, basta executar `yarn add @types/nomeDaLib`.
+
 ## Arquivos de configuração base
 
 - `tsconfig.json` -> configurações do ts
