@@ -16,6 +16,7 @@ Dev dependencies
 - `prettier`
 - `eslint-config-prettier`
 - `eslint-plugin-prettier`
+- `eslint-plugin-import-helpers`
 
 VS Code
 
@@ -83,7 +84,8 @@ Modificando e adicionando dados no arquivo `.eslintrc.json`:
   ],
   "plugins":[
     "@typescript-eslint",
-    "prettier"
+    "prettier",
+    "eslint-plugin-import-helpers"
   ]
   "rules":{
     "prettier/prettier": "error",
@@ -92,6 +94,21 @@ Modificando e adicionando dados no arquivo `.eslintrc.json`:
       "ignorePackages",
       {
         "ts":"never"
+      }
+    ],
+    "import-helpers/order-imports":[
+      "warn",
+      {
+        "newlinesBetween":"always",
+        "groups":[
+          "module",
+          "/^~/",
+          ["parent","sibling","index"]
+        ],
+        "alphabetize":{
+          "order":"asc",
+          "ignoreCase":true
+        }
       }
     ]
   },
