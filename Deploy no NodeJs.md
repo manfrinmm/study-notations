@@ -184,3 +184,6 @@ Teste de renovação do certificado.
 - `\q`
 - `exit`
 - `exit`
+
+Criar um volume postgresql
+`docker run --name postgres -e POSTGRES_PASSWORD=senhaEscolhida -p 5432:5432 -d -t -v /home/deploy/ateste:/var/lib/postgresql/data postgres`
