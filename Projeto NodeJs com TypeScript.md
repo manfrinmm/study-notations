@@ -186,10 +186,3 @@ Modificando e adicionando dados no arquivo `.vscode/launch.json`:
   ]
 }
 ```
-
-## Estrutura de arquivos
-
-- src
-  - routes
-    - index.ts
-  - server.ts
