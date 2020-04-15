@@ -1,5 +1,7 @@
 # Aplicação
 
+## Parte 1
+
 ### Três maneiras de lidar com banco de dados.
 
 - Driver nativo do banco de dados.
@@ -12,7 +14,7 @@
 - `reflect-metadata` -> É necessário quando se usa a sintaxe de `decorators`. E para "ativar", basta importar essa lib no arquivo `server.ts` da aplicação.
 - `pg` -> Driver do postgreSQL.
 
-## Docker
+### Docker
 
 Controle de serviço externo da aplicação
 
@@ -62,7 +64,7 @@ Criando a instância de um postgreSQL :
       "entities": ["./src/app/models/*.ts"],
       "migration": ["./src/database/migrations/*.ts"],
       "cli": {
-        "migrationsDir": "./src/database/migrations"
+        "migrationDir": "./src/database/migrations"
       }
     }
     ```
@@ -100,10 +102,10 @@ Adicionar um `script` no `package.json` para que todo comando feito pela cli do 
 - `yarn typeorm migration:run` -> Roda as migrations pendentes.
 - `yarn typeorm migration:revert` -> Desfazer a ultima migration.
 
-Alterar a `rule` de ser obrigatório o uso de `this` dentro de uma classe:
+Alterar a `rule` do eslint de ser obrigatório o uso de `this` dentro de uma classe:
 
 ```json
-{ "class-method-use-this": "off" }
+{ "class-methods-use-this": "off" }
 ```
 
 Exemplo de arquivo da migration:
