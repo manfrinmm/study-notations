@@ -88,6 +88,7 @@ Modificando e adicionando dados no arquivo `.eslintrc.json`:
     "eslint-plugin-import-helpers"
   ]
   "rules":{
+    "@typescript-eslint/camelcase":"off",
     "prettier/prettier": "error",
     "import/extensions":[
       "error",
@@ -101,8 +102,8 @@ Modificando e adicionando dados no arquivo `.eslintrc.json`:
       {
         "newlinesBetween":"always",
         "groups":[
+          "/^express/",
           "module",
-          "/^~/",
           ["parent","sibling","index"]
         ],
         "alphabetize":{
