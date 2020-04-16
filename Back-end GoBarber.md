@@ -90,6 +90,38 @@ Ela contém os arquivos de criação/alteração.
 **IMPORTANTE**, só é possível alterar uma migration de forma direta, caso ela não tenha sido enviada para outros devs ou para o ambiente de produção.
 Caso precise alterar, é necessário criar uma nova migration com as alterações desejadas.
 
+**IMPORTANTE**, Toda migration em seu método `down` deve fazer o inverso do método `up` na ordem inversa.
+
+**Exemplo:**
+
+```ts
+export default class NomeDaMigration implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropColumn("table_names", "provider");
+
+    await queryRunner.addColumn(
+      "table_names",
+      new TableColumn({
+        name: "name",
+        type: "varchar",
+      })
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropColumn("table_names", "name");
+
+    await queryRunner.addColumn(
+      "table_names",
+      new TableColumn({
+        name: "provider",
+        type: "varchar",
+      })
+    );
+  }
+}
+```
+
 Adicionar um `script` no `package.json` para que todo comando feito pela cli do `typeorm` seja feito com TS
 
 ```json
@@ -195,6 +227,9 @@ class ClassName {
 
 ### Criando um `repository`
 
+Cria-se um `repository` somente quando se tem um método personalizado para uma Entidade.
+Caso não tenha, basta importar do `typeorm` o método `getRepository()`;
+
 ```ts
 import ModelName from "./path/to/model/ModelName";
 import { EntityRepository, Repository } from "typeorm";
@@ -241,3 +276,279 @@ class CreateModelNameService {
 
 export default CreateModelNameService;
 ```
+
+## Parte 2
+
+### Criando model de usuário
+
+- Dados ("users")
+  - id: uuid
+  - name: varchar
+  - email: varchar; isUnique: true
+  - password_hash: varchar
+  - avatar: varchar; isNullable: true
+  - created_at: timestamp; default: "now()"
+  - updated_at: timestamp; default: "now()"
+
+Dentro do model, o typeorm importa os decorators `CreateDateColumn()` e `UpdateDateColumn()`.
+
+**### Criando relacionamento entre models (PRECISA VERIFICAR MELHOR QUAIS O MELHORES MÉTODOS)**
+
+- Definindo `foreignKey`:
+
+  ```ts
+  await queryRunner.createForeignKeys(
+    "table_names",
+    new TableForeignKey({
+      columnNames: ["user_id", "provider_id"],
+      referencedTableName: "users",
+      referencedColumnNames: ["id"],
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
+    })
+  );
+  ```
+
+Propriedades para `onDelete` e `onUpdate`:
+
+- `SET NULL` -> Ao ser deletado, coloque null como valor;
+- `CASCADE` -> Ao ser atualizado/deletado, coloque o valor atualizado/(delete a linha inteira);
+- `RESTRICT` -> vai bloquear a operação e não deixar o dado ser deletado ou atualizado;
+
+- Definindo `Relação` no model:
+
+```ts
+@ManyToOne(()=>ModelName)
+@JoinColumn({name:"provider_id"}) // Especifica qual coluna está relacionado com `provider`
+provider: ModelName
+```
+
+### Criptografando a password user
+
+Dependências
+
+- `bcryptjs`
+- `@types/bcryptjs` (Dev dependencies)
+
+```ts
+import { hash, compare } from "bcryptjs";
+
+// Cria o hash da senha
+const password_hash = await hash(password, 8);
+
+// Compara a criptografia de senha
+const password_compare = await compare(password, password_hash);
+```
+
+### Autenticação
+
+Dependências
+
+- `jsonwebtoken`;
+- `@types/jsonwebtoken` (Dev dependencies);
+
+- Criando um token:
+  `SECRET_KEY`: Pode ser obtida uma string aleatória neste [link](http://www.md5.cz)
+
+```ts
+import { sign } from "jsonwebtoken";
+
+const token = sign({}, "SECRET_KEY", {
+  subject: user.id,
+  expiresIn: "7d",
+});
+```
+
+- Verificando um token:
+
+```ts
+import { verify } from "jsonwebtoken";
+
+interface TokenPayload {
+  iat: number;
+  exp: number;
+  sub: string;
+}
+
+const decoded = verify(token, "SECRET_KEY");
+
+const {} = decoded as TokenPayload; // Se faz essa referência para forçar que todo dado que for obtido através da desestruturação do `decoded`, seja um valor de tipo válido para o TS.
+```
+
+Colocar um middleware (`ensureAuthenticated.ts`) em todas as rotas que necessitam de autenticação:
+
+```ts
+import ensureAuthenticated from "./path/to/middlewares/ensureAuthenticated";
+
+usersRouter.use(ensureAuthenticated);
+```
+
+### Sobrescrever tipos de uma biblioteca
+
+- Criar um aqui em `@types/nome_lib.d.ts`
+
+```ts
+declare namespace Express {
+  // Tudo que estiver entre essas chaves será anexado à lib do express
+  export interface Request {
+    user: {
+      id: string;
+    };
+  }
+}
+```
+
+### Envio de arquivos
+
+Dependências
+
+- `multer`
+- `@types/multer` (Dev Dependencies)
+
+Configurando `multer`:
+
+```ts
+import crypto from "crypto";
+import multer from "multer";
+
+export default {
+  storage: multer.diskStorage({
+    destination:, // Pasta a onde os arquivos serão armazenados. Use o `path` para informar.
+    // Qual é o nome que o arquivo vai receber. Por padrão o nome que ele é recebe é o próprio nome do arquivo. Devemos modificar para não sobrescrever outros arquivos.
+    filename (req,file,cb){
+      const fileHash  = crypto.randomBytes(10).toString("HEX");
+      const fileName = `${fileHash}-${file.originalname}`;
+
+      return cb(null,fileName);
+    },
+  })
+}
+```
+
+Para ativar, basta importar esse arquivo de configuração e passar como parâmetro para o multer.
+
+A instância do multer existem 5 métodos:
+
+- `any` -> Permite enviar tanto um único arquivo quanto várias, ou seja, `array` ou `single`.
+- `array` -> Permite enviar vários arquivos.
+- `fields` -> --
+- `none` -> Não permite enviar arquivos.
+- `single` -> Permite enviar um único arquivo.
+
+Feito isso, basta acrescentar a instância do multer na rota como um middleware.
+
+```ts
+upload.single("nome_do_campo_que_terá_a_imagem");
+```
+
+### Atribuir avatar para usuário
+
+- Criar um service `UpdateUserAvatarService`:
+
+  - Recebe `user_id` e `avatarFilename -> req.file.filename`.
+  - Verificar se o `user_id` é de um usuário válido.
+  - Caso o usuário tenha um avatar anterior. Delete o avatar anterior.
+
+  ```ts
+  import path from "path";
+  import fs from "fs";
+
+  if (user.avatar) {
+    const userAvatarFilePath = path.join(
+      path.resolve(__dirname, "path", "to", "file", "tmp"),
+      user.avatar
+    );
+
+    const userAvatarFileExists = await js.promises.stat(userAvatarFilePath); // Verifica o estado do arquivo, caso ele exista.
+    if (userAvatarFileExists) {
+      await js.promises.unlink(userAvatarFilePath);
+    }
+  }
+
+  user.avatar = avatarFilename;
+
+  await usersRepository.save(user);
+  ```
+
+### Mostrando avatar do usuário
+
+```ts
+app.use("/files",express.static(path.resolve("path","to","tmp"))
+```
+
+### Tratativa de erros dentro da aplicação
+
+- Criar nossa própria classe de erro.
+- Criar arquivo `errors/AppError.ts`:
+
+  ```ts
+  class AppError {
+    public readonly message: string;
+
+    public readonly statusCode: number;
+
+    constructor(message:string,statusCode = 400){
+      this.message = message;
+      this.statusCode = statusCode
+    }
+
+    export default AppError
+
+  ```
+
+### Tratativa de erro global
+
+É um middleware que vai todos os erros dentro da aplicação (Services, Routes, Models, etc...)
+
+Este middleware deve ser colocado depois que as rotas foram declaras:
+
+```ts
+import AppError from "./path/to/erros/AppError";
+app.use(routes);
+
+app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
+  if (err instanceof AppError) {
+    // Se for, é um erro originado pela aplicação.
+    return res.status(err.statusCode).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+
+  return res.status(500).json({
+    status: "error",
+    message: "Internal server error",
+  });
+});
+```
+
+Alterar o eslint rules
+
+```json
+{
+  "@typescript-eslint/no-unused-vars": [
+    "error",
+    {
+      "argsIgnorePattern": "_"
+    }
+  ]
+}
+```
+
+Feito isso é necessário instalar uma lib (`express-async-errors`) para que o express capture os erros gerados, pois o uso de `async` não permite isso.
+
+Depois basta importar essa lib após o express
+
+```ts
+import express from "express";
+import "express-async-errors";
+```
+
+### Envio de email
