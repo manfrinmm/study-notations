@@ -292,38 +292,80 @@ export default CreateModelNameService;
 
 Dentro do model, o typeorm importa os decorators `CreateDateColumn()` e `UpdateDateColumn()`.
 
-**### Criando relacionamento entre models (PRECISA VERIFICAR MELHOR QUAIS O MELHORES MÉTODOS)**
+### Criando relacionamento entre models
 
-- Definindo `foreignKey`:
+- Definindo `foreignKey` em uma nova migration:
 
   ```ts
-  await queryRunner.createForeignKeys(
-    "table_names",
+  await queryRunner.createForeignKeys("table_names", [
     new TableForeignKey({
-      columnNames: ["user_id", "provider_id"],
+      name: "user",
       referencedTableName: "users",
       referencedColumnNames: ["id"],
+      columnNames: ["user_id"],
       onDelete: "SET NULL",
       onUpdate: "CASCADE",
+    }),
+    new TableForeignKey({
+      name: "provider",
+      referencedTableName: "users",
+      referencedColumnNames: ["id"],
+      columnNames: ["provider_id"],
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
+    }),
+  ]);
+  ```
+
+- Definindo `foreignKey` na criação da tabela:
+
+  ```ts
+  await queryRunner.createTable(
+    new Table({
+      name: "table_names",
+      columns: [
+        {
+          name: "columnName",
+          type: "columnType",
+        },
+      ],
+      foreignKeys: [
+        {
+          name: "user",
+          referencedTableName: "users",
+          referencedColumnNames: ["id"],
+          columnNames: ["user_id"],
+          onDelete: "SET NULL",
+          onUpdate: "CASCADE",
+        },
+        {
+          name: "provider",
+          referencedTableName: "users",
+          referencedColumnNames: ["id"],
+          columnNames: ["provider_id"],
+          onDelete: "SET NULL",
+          onUpdate: "CASCADE",
+        },
+      ],
     })
   );
   ```
 
-Propriedades para `onDelete` e `onUpdate`:
+  Propriedades para `onDelete` e `onUpdate`:
 
-- `SET NULL` -> Ao ser deletado, coloque null como valor;
-- `CASCADE` -> Ao ser atualizado/deletado, coloque o valor atualizado/(delete a linha inteira);
-- `RESTRICT` -> vai bloquear a operação e não deixar o dado ser deletado ou atualizado;
+  - `SET NULL` -> Ao ser deletado, coloque null como valor;
+  - `CASCADE` -> Ao ser atualizado/deletado, coloque o valor atualizado/(delete a linha inteira);
+  - `RESTRICT` -> vai bloquear a operação e não deixar o dado ser deletado ou atualizado;
 
-- Definindo `Relação` no model:
+  Definindo `Relação` no model:
 
-```ts
-@ManyToOne(()=>ModelName)
-@JoinColumn({name:"provider_id"}) // Especifica qual coluna está relacionado com `provider`
-provider: ModelName
-```
+  ```ts
+  @ManyToOne(()=>ModelName)
+  @JoinColumn({name:"provider_id"}) // Especifica qual coluna está relacionado com `provider`
+  provider: ModelName
+  ```
 
-### Criptografando a password user
+### Criptografando a password
 
 Dependências
 
@@ -385,7 +427,7 @@ usersRouter.use(ensureAuthenticated);
 
 ### Sobrescrever tipos de uma biblioteca
 
-- Criar um aqui em `@types/nome_lib.d.ts`
+- Criar um arquivo em `@types/nome_lib.d.ts`
 
 ```ts
 declare namespace Express {
@@ -425,7 +467,15 @@ export default {
 }
 ```
 
-Para ativar, basta importar esse arquivo de configuração e passar como parâmetro para o multer.
+Para ativar, basta importar esse arquivo de configuração e passar como parâmetro para o multer:
+
+```ts
+import multer from "multer";
+
+import multerConfig from "./src/config/multer.ts";
+
+const upload = multer(multerConfig);
+```
 
 A instância do multer existem 5 métodos:
 
@@ -476,6 +526,28 @@ upload.single("nome_do_campo_que_terá_a_imagem");
 app.use("/files",express.static(path.resolve("path","to","tmp"))
 ```
 
+Adicionar esses dados no model `User`:
+
+```ts
+ @AfterUpdate()
+  returnAvatarUrl(): void {
+    this.avatar_url = encodeURI(
+      `http://192.168.0.101:3333/files/${this.avatar}`,
+    );
+  }
+
+  @AfterLoad()
+  loadAvatarUrl(): void {
+    if (this.avatar) {
+      this.avatar_url = encodeURI(
+        `http://192.168.0.101:3333/files/${this.avatar}`,
+      );
+    }
+  }
+
+  avatar_url: string;
+```
+
 ### Tratativa de erros dentro da aplicação
 
 - Criar nossa própria classe de erro.
@@ -498,7 +570,7 @@ app.use("/files",express.static(path.resolve("path","to","tmp"))
 
 ### Tratativa de erro global
 
-É um middleware que vai todos os erros dentro da aplicação (Services, Routes, Models, etc...)
+É um middleware que capta todos os erros dentro da aplicação (Services, Routes, Models, etc...)
 
 Este middleware deve ser colocado depois que as rotas foram declaras:
 
@@ -508,7 +580,7 @@ app.use(routes);
 
 app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
   if (err instanceof AppError) {
-    // Se for, é um erro originado pela aplicação.
+    // Caso 'err' seja uma instância do 'AppError', é um erro originado pela aplicação.
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
@@ -529,7 +601,7 @@ app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
 });
 ```
 
-Alterar o eslint rules
+Alterar o eslint rules para aceitar o uso de `_` para parâmetros não utilizados.
 
 ```json
 {
@@ -552,3 +624,5 @@ import "express-async-errors";
 ```
 
 ### Envio de email
+
+\---

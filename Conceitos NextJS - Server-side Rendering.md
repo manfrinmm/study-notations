@@ -1,7 +1,7 @@
 ## Introdução
 
-- Ele é usado para que os robots de indexação possa indexar o nosso site também. Pois ele não habilita o JS na nossa página, e como o `React` é renderizado com JS, nada será mostrada ao Robô e por sua vez não irá indexar a nossa página.
-- O HTML já é renderizado como a resposta, pois do jeito tradicional é que o conteúdo HTML seja gerado com JS, mas isso só acontece no parte do cliente.
+- Ele é usado para que os robots de indexação possa indexar o nosso site. Pois os robôs geralmente não habilitam o JS na nossa página, e como o `React` é renderizado com JS, nada será mostrada ao Robô e por sua vez não irá indexar a nossa página.
+- O HTML já é renderizado com a requisição, pois do jeito tradicional o conteúdo HTML é gerado com JS, mas isso só acontece no parte do cliente.
 
 Criando o projeto
 
@@ -57,46 +57,46 @@ import Head from "next/head";
 </Head>;
 ```
 
-### Configurando documento global
+## Configurando documento global
 
 - Ele vai ser a base que irá montar todas as páginas da aplicação.
 
 - Criar arquivo `pages/_document.js`.
 
-```js
-import Document, { Head, Main, NextScript } from "next/document";
+  ```js
+  import Document, { Head, Main, NextScript } from "next/document";
 
-export default class MyDocument extends Document {
-  render() {
-    return (
-      <html>
-        <Head>
-          // Todo `Head` que tiver dentro da nossa aplicação será anexado à
-          esse.
-          <style>{`body { background: #069 }`}</style>
-        </Head>
-        <body>
-          <Main /> // Vai conter a página da nossa aplicação.
-          <NextScript /> // Todo `script` que tiver dentro da nossa aplicação será
-          anexado à esse.
-        </body>
-      </html>
-    );
+  export default class MyDocument extends Document {
+    render() {
+      return (
+        <html>
+          <Head>
+            // Todo `Head` que tiver dentro da nossa aplicação será anexado à
+            esse.
+            <style>{`body { background: #069 }`}</style>
+          </Head>
+          <body>
+            <Main /> // Vai conter a página da nossa aplicação.
+            <NextScript /> // Todo `script` que tiver dentro da nossa aplicação será
+            anexado à esse.
+          </body>
+        </html>
+      );
+    }
   }
-}
-```
+  ```
 
 Todas as vezes que houver alteração dentro desse arquivo é necessário refazer a `build` ou rodar novamente `yarn dev`.
 
-### Utilizando HOCs (High Ordem Components )
+## Utilizando HOCs (High Order Components )
 
-High Ordem Components é uma função que retorna outra função e dentro dessa outra função passamos um componente para ela.
+High Order Components é uma função que retorna outra função e dentro dessa outra função passamos um componente para ela.
 
 Geralmente se utiliza essa arquitetura quando precisa compartilhar funcionamentos entre os componentes (Páginas)
 
 - Cadastrar todos os `HOCs` da aplicação: `src/hocs/nomeHOCs.js`
 
-#### Integrando o Google Analytics com React
+### Integrando o Google Analytics com React
 
 Dependências:
 
@@ -141,7 +141,7 @@ const Home = () => <div> Hello World </div>;
 export default withAnalytics()(Home);
 ```
 
-### Recursos estáticos
+## Recursos estáticos
 
 O certo é que o cliente importe os arquivos estáticos da aplicação.
 
@@ -155,42 +155,57 @@ Importando uma imagem:
 
 **IMPORTANTE**, sempre é necessário começar com `/static` e lá dentro o caminho até o arquivo desejado.
 
-### Servidor customizado
+## Servidor customizado
 
 Dependências:
 
 - `next-routes`;
 
-É necessário reescrever a lógica de como next se comporta dentro do servido:
+É necessário reescrever a lógica de como o next se comporta dentro do servidor:
 
 - Criar arquivo `server.js`:
 
-```js
-const { createServer } = require("http");
-const next = require("next");
-const routes = require("./routes");
+  ```js
+  const { createServer } = require("http");
+  const next = require("next");
+  const routes = require("./routes");
 
-const app = next({ dev: process.env.NODE_ENV !== "production" }); // Isso informa se estamos em ambiente de produção ou de desenvolvimento.
+  const app = next({ dev: process.env.NODE_ENV !== "production" }); // Isso informa se estamos em ambiente de produção ou de desenvolvimento.
 
-const handler = routes.getRequestHandler(app);
+  const handler = routes.getRequestHandler(app);
 
-app.prepare().then(() => {
-  createServer(handler).listen(3000);
-});
-```
+  app.prepare().then(() => {
+    createServer(handler).listen(3000);
+  });
+  ```
+
+- Alterar os `scripts`:
+
+  - `dev` para `node server.js`.
+  - `start` para `NODE_ENV=production&node server.js`.
 
 - Criar arquivo `routes.js`:
 
-```js
-const routes = require("next-routes");
+  ```js
+  const routes = require("next-routes");
 
-module.exports = routes()
-  .add("route", "nameOfFile")
-  .add("/", "home")
-  .add("/users/:username", "detail");
-```
+  module.exports = routes()
+    .add("route", "nameOfFile")
+    .add("/", "home")
+    .add("/users/:username", "detail");
+  ```
 
-### Recebendo parâmetros das rotas
+Criando o arquivo de configuração do next:
+
+- `next.config.js`:
+
+  ```js
+  module.exports = {
+    useFileSystemPublicRoutes: false, // Essa configuração permite que a configuração de rotas seja entendida apenas pelo arquivo de `routes.js`. Caso contrário os arquivos dentro da pasta `pages` seriam as rotas.
+  };
+  ```
+
+## Recebendo parâmetros das rotas
 
 ```js
 const Detail = ({ user }) => (
@@ -203,27 +218,14 @@ const Detail = ({ user }) => (
 Detail.getInitialProps = async ({ query }) => {
   // dentro da propriedade `query` terá os parâmetros passado à rota. SOMENTE depois de configurar o servidor customizado e os arquivos de rotas.
   const response = await axios.get(`
-    https://api.github.com/users/${query.username}
-  `);
+      https://api.github.com/users/${query.username}
+    `);
 
   return { user: response.data };
 };
 ```
 
-- Alterar os `scripts`:
-  - `dev` para `node server.js`.
-  - `start` para `NODE_ENV=production&node server.js`.
-
-Criando o arquivo de configuração do next:
-
-- `next.config.js`:
-  ```js
-  module.exports = {
-    useFileSystemPublicRoutes: false, // Essa configuração permite que a configuração de rotas seja entendida apenas pelo arquivo de `routes.js`. Caso contrário os arquivos dentro da pasta `pages` seriam as rotas.
-  };
-  ```
-
-### Estilização com `styled-components`
+## Estilização com `styled-components`
 
 É interessante que na primeira página requisitada pelo cliente seja renderizada com os estilos também no servidor.
 
@@ -236,61 +238,61 @@ Configurando o `babel` para que possa transpilar os arquivos JS. Dessa forma ele
 
 - `.babelrc`:
 
-```json
-{
-  "presets": ["next/babel"],
-  "plugins": [
-    [
-      "babel-plugin-styled-components",
-      {
-        "ssr": true,
-        "displayName": true,
-        "preprocess": false
-      }
+  ```json
+  {
+    "presets": ["next/babel"],
+    "plugins": [
+      [
+        "babel-plugin-styled-components",
+        {
+          "ssr": true,
+          "displayName": true,
+          "preprocess": false
+        }
+      ]
     ]
-  ]
-}
-```
+  }
+  ```
 
 - Alterar o arquivo `_document.js`:
 
-```js
-import Document, { Head, Main, NextScript } from "next/document";
-import { ServerStyleSheet } from "styled-components";
+  ```js
+  import Document, { Head, Main, NextScript } from "next/document";
+  import { ServerStyleSheet } from "styled-components";
 
-export default class MyDocument extends Document {
-  static getInitialProps({ renderPage }) {
-    const sheet = new ServerStyleSheet();
-    const page = renderPage((App) => (props) =>
-      sheet.collectStyles(<App {...props} />)
-    );
+  export default class MyDocument extends Document {
+    static getInitialProps({ renderPage }) {
+      const sheet = new ServerStyleSheet();
+      const page = renderPage((App) => (props) =>
+        sheet.collectStyles(<App {...props} />)
+      );
 
-    const styleTags = sheet.getStyleElement();
+      const styleTags = sheet.getStyleElement();
 
-    return { ...page, styleTags };
+      return { ...page, styleTags };
+    }
+
+    render() {
+      return (
+        <html>
+          <Head>
+            // Todo `Head` que tiver dentro da nossa aplicação será anexado à
+            esse.
+            {this.props.styleTags} // Aqui ele irá colocar todas as tags de estilos
+            dentro do primeiro carregamento da página.
+          </Head>
+          <body>
+            <Main /> // Vai conter a página da nossa aplicação.
+            <NextScript /> // Todo `script` que tiver dentro da nossa aplicação será
+            anexado à esse.
+          </body>
+        </html>
+      );
+    }
   }
+  ```
 
-  render() {
-    return (
-      <html>
-        <Head>
-          // Todo `Head` que tiver dentro da nossa aplicação será anexado à
-          esse.
-          {this.props.styleTags} // Aqui ele irá colocar todas as tags de estilos
-          dentro do primeiro carregamento da página.
-        </Head>
-        <body>
-          <Main /> // Vai conter a página da nossa aplicação.
-          <NextScript /> // Todo `script` que tiver dentro da nossa aplicação será
-          anexado à esse.
-        </body>
-      </html>
-    );
-  }
-}
-```
-
-### Definindo caminho raiz
+## Definindo caminho raiz
 
 Dependências
 
@@ -313,6 +315,8 @@ Alterar o arquivo `.babelrc`:
 }
 ```
 
+Para aplicar, deverá restarta o servidor que possa ler as novas configurações do babel.
+
 Criar o arquivo `jsconfig.json`:
 
 ```json
@@ -326,11 +330,9 @@ Criar o arquivo `jsconfig.json`:
 }
 ```
 
-Para aplicar, deverá restarta o servidor que possa ler as novas configurações do babel.
-
 # Aplicação
 
 - Listas todos os membros de uma organização do github com um link para a página DETAIL.
-- Para cada página alterar o title da página.
+- Para cada página alterar o title.
 - Implementar o Google Analytics em todas as páginas.
 - Importar uma imagem de background para a página HOME.
