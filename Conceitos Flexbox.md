@@ -24,6 +24,7 @@ height: 100%;
 - `flex-direction: column;`
   - `align-items` -> alinhar horizontalmente.
   - `justify-content` -> alinhar verticalmente.
+  - `align-self` -> alinha próprio elemento.
 
 ---
 
