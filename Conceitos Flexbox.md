@@ -47,6 +47,10 @@ height: 100%;
 
 ---
 
+- `align-items: stretch` -> fazer o conteúdo ocupar o tamanho total disponível.
+
+---
+
 - `justify-content: space-between` -> coloca um espaço igual entre os itens.
 
 ---
