@@ -182,3 +182,107 @@ Isso fará não será mais necessário passar o objeto de repository para os ser
 
   export default new SessionController();
   ```
+
+# Testes e TDD
+
+Teste automatizados, garante que nossa aplicação continue funcionando independente do número de modificações (novas funcionalidades e devs no time).
+
+1. Testes unitários (TDD): Testam funcionalidades (principalmente das camadas bem isoladas de serviços) especificas da aplicação (Essas funções precisam ser funções puras).
+
+   1.1 `Funções puras` são aquelas que não dependem de outra parte da aplicação, ou seja, não dependem de serviços externos.
+
+   1.1.1 Elas jamais faram uma chamada à uma API externa, não existe efeito colateral.
+
+2. Testes de integração : Testam uma funcionalidade completa, passando por várias camadas da aplicação.
+
+   2.2 Exemplo: Fazer o teste na criação do usuário, logo faria todo o fluxo que poderia percorrer essa criação.
+
+3. Testes E2E: São testes que simula a ação do usuário dentro da aplicação. Esse seria um teste mais voltado para a interface.
+
+   2.2 Exemplo:
+
+   1. Clique no input de email
+   2. Preencha matheus_123@h.com
+   3. Clique no input de senha
+   4. Preencha 123456
+   5. Clique no botão "Logar"
+   6. Espero que a página tenha enviado o usuário para o dashboard
+
+## TDD (Test Driven Development)
+
+- Cria primeiro o teste.
+- Fala como quer que a funcionalidade funcione.
+
+### Como funciona
+
+- Primeiro o teste irá falhar.
+- Faça o teste passar.
+- Refatore o código.
+
+### Configurando o Jest
+
+- Instalar `yarn add -D jest @types/jest`;
+- Rode `yarn jest --init`;
+  - Selecione `limpar o mock` para cada teste nas perguntas.
+
+Escrever os testes em TS:
+
+- Instalar `yarn add -D ts-jest`
+- Modificando arquivo `jest.config.js`:
+
+```js
+module.exports = {
+  preset: "ts-jest",
+};
+```
+
+- Modificando arquivo `.eslintrc.json`:
+
+```json
+{
+  "env": {
+    "jest": true
+  }
+}
+```
+
+Caminho a onde o jest irá procurar pelos tests:
+
+- Modificando arquivo `jest.config.js`:
+
+```js
+module.exports = {
+  testMatch: ["**/*.spec.ts"],
+};
+```
+
+Fazendo jest entender os talhos (`@`) dos imports:
+
+- Modificando arquivo `jest.config.js`:
+
+```js
+const { pathsToModuleNameMapper } = require("ts-jest/utils");
+const { compilerOptions } = require("./tsconfig.json");
+
+module.exports = {
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: "<rootDir>/src/",
+  }),
+};
+```
+
+Configurando Coverage:
+
+- Modificando arquivo `jest.config.js`:
+
+```js
+module.exports = {
+  collectCoverage: true,
+
+  collectCoverageFrom: ["<rootDir>/src/modules/**/services/*.ts"],
+
+  coverageDirectory: "coverage",
+
+  coverageReporters: ["text-summary", "lcov"],
+};
+```
