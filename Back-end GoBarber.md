@@ -625,4 +625,45 @@ import "express-async-errors";
 
 ### Envio de email
 
-\---
+Usando o Amazon SES
+
+A configuração de envio de emails através de SMTP não é muito recomendado para enviar grandes quantidades de emails ao mesmo tempo, pois ele abre uma conexão, envia o email e fecha.
+
+Usando API do Amazon SES:
+
+- `yarn add aws-sdk`
+
+## Parte 4
+
+### Banco de dados
+
+- Banco relacional:
+  - Consegue ter controle sobre a estrutura do banco (Colunas, Migrações)
+- Quando não utilizar o `PostgreSQL`:
+
+  - Quando tiver larga escala de dados e operações com poucos relacionamentos entre eles.
+
+- `MongoDB` Ideal para guardar notificações e larga escala de dados que não possuem muitos relacionamentos.
+- `Redis`: Guarda informações temporárias (Cache, Filas).
+
+### MongoDb
+
+Configurando mongo:
+
+- `docker run --name mongodb -p 27017:27017 -d -t mongo`
+
+Nomenclatura:
+Tabelas -> Schemas
+Registro -> Documents
+
+### Redis
+
+Configurando redis:
+
+- `docker run --name redis -p 6379:6379 -d -t redis:alpine`
+
+Instalar o driver do redis: `yarn add ioredis`
+
+## Tip
+
+- `Datadog` -> Monitora queries feitas no banco de dados
