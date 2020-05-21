@@ -7,7 +7,7 @@ Iniciar um projeto com `yarn init -y`.
 - `express`
 - `typescript` (dev dependencies)
 - `@types/express` (dev dependencies)
-- `ts-node-dev (dev` dependencies) -> Seria um `nodemon` para arquivos TS e também converte o código TS para JS.
+- `ts-node-dev` (dev dependencies) -> Seria um `nodemon` para arquivos TS e também converte o código TS para JS.
 
 Dev dependencies
 
@@ -77,47 +77,41 @@ Ao final ele irá mostrar uma linha com todas as dependências necessárias. Cop
 Modificando e adicionando dados no arquivo `.eslintrc.json`:
 
 ```json
-  "extends":[
+{
+  "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended",
+    "plugin:prettier/recommended"
   ],
-  "plugins":[
-    "@typescript-eslint",
-    "prettier",
-    "eslint-plugin-import-helpers"
-  ]
-  "rules":{
-    "@typescript-eslint/camelcase":"off",
+  "plugins": ["@typescript-eslint", "prettier", "eslint-plugin-import-helpers"],
+  "rules": {
+    "@typescript-eslint/camelcase": "off",
     "prettier/prettier": "error",
-    "import/extensions":[
+    "import/extensions": [
       "error",
       "ignorePackages",
       {
-        "ts":"never"
+        "ts": "never"
       }
     ],
-    "import-helpers/order-imports":[
+    "import-helpers/order-imports": [
       "warn",
       {
-        "newlinesBetween":"always",
-        "groups":[
-          "/^express/",
-          "module",
-          ["parent","sibling","index"]
-        ],
-        "alphabetize":{
-          "order":"asc",
-          "ignoreCase":true
+        "newlinesBetween": "always",
+        "groups": ["/^express/", "module", ["parent", "sibling", "index"]],
+        "alphabetize": {
+          "order": "asc",
+          "ignoreCase": true
         }
       }
     ]
   },
-  "settings":{
-    "import/resolver":{
-      "typescript":{}
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
     }
   }
+}
 ```
 
 Modificando e adicionando dados no arquivo `.eslintignore` -> Esse arquivo serve para que o eslint não monitore os arquivos selecionados:
