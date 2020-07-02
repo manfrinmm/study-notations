@@ -6,6 +6,13 @@
   ```
   - Agora a função `handleInputBlur` será apenas criada novamente casa algum dado dentro do `Array de dependências` seja alterado. Caso o array seja vázio, a função será criada uma única vez.
 
+### Memorizando um valor especifico ou formatação em um componente:
+
+- `useMemo` -> Sempre irá retornar um valor já calculado:
+  ```ts
+  const disableDays = useMemo(() => {}, ["Array de dependências"]);
+  ```
+
 ### Criar uma interface dinâmica:
 
 ```ts
