@@ -57,7 +57,7 @@
   - Ter uma boa carteira recomendada.
   - Fazer a pergunta: "Como você pode triplicar seu salário ?"
 
-- "Matriz" da desfudência:
+- Plano cartesiano da desfudência:
   - Tempo utilizado para gastar ou ganhar aquele dinheiro.
   - "Deveria estar me esforçando para ganhar mais dinheiro ou gastando menos dinheiro"?
   - Tópicos:
