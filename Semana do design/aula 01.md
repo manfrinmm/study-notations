@@ -16,11 +16,11 @@
 ## Praticar constantemente e experimentar criar novas interfaces
 
 - Criar projetos pessoais.
-- Testar novas ideas.
+- Testar novas ideias.
 
 # Erros que devem ser evitados
 
-## Entenda a diferença entre UX e UI design
+## Entender a diferença entre UX e UI design
 
 ### UX -> Experiência do usuário:
 
