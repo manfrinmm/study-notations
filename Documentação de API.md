@@ -6,7 +6,6 @@
 - Documentação:
   - Descreve a API como um todo com detalhamento.
   - Destaca as regras de negócio da aplicação.
-  -
 - Referência:
   - Destaca da método que será utilizado.
   - URL do método.

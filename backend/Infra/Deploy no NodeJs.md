@@ -159,6 +159,8 @@ Ele é necessário quando a porta da sua aplicação não estiver liberado para 
 
 ### Bitnami (Images com segurança aprimorada (default))
 
+chown 1001:1001 -R docker
+
 - `docker run --name postgres -e POSTGRESQL_PASSWORD=senhaEscolhida -e POSTGRESQL_USERNAME=postgres -e POSTGRESQL_DATABASE=gobarber -p 35432:5432 -d bitnami/postgresql:latest`
 
 - `docker run --name mongo -e MONGODB_USERNAME=gobarber -e MONGODB_PASSWORD=senhaEscolhida2 -e MONGODB_DATABASE=gobarber -p 47017:27017 -d bitnami/mongodb:latest`
@@ -180,6 +182,12 @@ Ele é necessário quando a porta da sua aplicação não estiver liberado para 
 - `\q`
 - `exit`
 - `exit`
+
+---
+
+```bash
+CREATE DATABASE "nome-da-database" WITH OWNER "postgres" ENCODING "UTF8";
+```
 
 ## Configurando NGINX
 
@@ -223,6 +231,42 @@ Revisando arquivo de configuração:
 
 - `sudo nginx -t` -> Testa os arquivos de configuração e verifica se estão certos.
 - `sudo service nginx restart` -> Reiniciar o serviço do nginx.
+
+## Configurando Apache
+
+Ele é uma ferramenta de PROXY reverso. Uma alternativa ao Nginx.
+
+Ele vai fazer o redirecionamento de portas.
+
+- Vá até esta pasta do apache `cd /usr/local/apache`
+- Entre na pasta `conf/userdata`.
+- Aqui faremos a seguinte estrutura:
+
+```bash
+.
+├── ssl
+│   └── 2_4
+│       └── username
+│           └── site.url
+│              └── reverseproxy.conf
+├── std
+│   └── 2_4
+│       └── username
+│           └── site.url
+│              └── reverseproxy.conf
+```
+
+O arquivo `reverseproxy.conf` deve ficar nesse formato:
+
+```apache
+ProxyPreserveHost On
+ProxyPass / http://localhost:3333/
+ProxyPassReverse / http://localhost:3333/
+```
+
+---
+
+Esse procedimento ainda precisa validado, contudo esse caminho foi utilizado para uma aplicação hospedada em um servidor que possui apache e cpanel instalados e configurados.
 
 ## Configurando o Certbot
 
@@ -391,7 +435,7 @@ jobs:
 
 # Inicializando aplicação
 
-- Instale as depêndias do projeto.
+- Instale as dependências do projeto.
 - Rode o script de build.
 - Rode o script de migrations.
 - Rode o script de inicializar a aplicação.
