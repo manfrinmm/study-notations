@@ -207,7 +207,24 @@ O arquivo deve ficar nesse formato:
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    server_name _;
+    server_name URL_REQUEST;
+
+    location / {
+      proxy_pass http://localhost:3333;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
+      proxy_set_header Host $host;
+      proxy_cache_bypass $http_upgrade;
+    }
+  }
+```
+
+ou para configurar mais de um server_name
+
+```nginx
+  server {
+    server_name URL_REQUEST;
 
     location / {
       proxy_pass http://localhost:3333;
@@ -262,6 +279,40 @@ O arquivo `reverseproxy.conf` deve ficar nesse formato:
 ProxyPreserveHost On
 ProxyPass / http://localhost:3333/
 ProxyPassReverse / http://localhost:3333/
+
+
+```
+
+Rebuild de configuração `/usr/local/cpanel/scripts/rebuildhttpdconf`
+
+Restart apache `/usr/local/cpanel/scripts/restartsrv_httpd`
+
+---
+
+WHM -> Configuração do Apache -> Pre main include:
+
+```apache
+<VirtualHost *:80>
+  ServerName api.ropropulm.devmatheus.com
+  ServerAlias www.api.ropropulm.devmatheus.com
+
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:4333/
+  ProxyPassReverse / http://localhost:4333/
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName api.ropropulm.devmatheus.com
+  ServerAlias www.api.ropropulm.devmatheus.com
+
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:4333/
+  ProxyPassReverse / http://localhost:4333/
+
+  SSLEngine on
+  SSLCertificateFile /var/cpanel/ssl/system/certs/api_ropropulm_devmatheus_com_a8bf2_98e25_1681791413_aec5a4110e2de673ed5cc07ce1d152b9.crt
+  SSLCertificateKeyFile /var/cpanel/ssl/system/keys/a8bf2_98e25_95762843a6f6ca186ed0f6b5144f84ee.key
+</VirtualHost>
 ```
 
 ---
