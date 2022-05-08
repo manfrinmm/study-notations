@@ -484,6 +484,74 @@ jobs:
             pm2 restart service_name
 ```
 
+- Arquivo de exemplo para monorepo:
+
+```yml
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "server/**"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "./server"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup NodeJs
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Run Build
+        run: yarn build
+
+      - uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ secrets.SSH_USER }}
+          source: "server/*, !server/src, !server/docs, !server/node_modules"
+          target: "~/apps/my-table-control"
+
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ secrets.SSH_USER }}
+          script: |
+            cd ~/apps/my-table-control/server
+            yarn --production
+            yarn prisma migrate deploy
+            pm2 reload api-my-table-control
+```
+
 # Inicializando aplicação
 
 - Instale as dependências do projeto.
